@@ -10,7 +10,7 @@
 - **Delete Contacts**: Remove contacts that are no longer needed.
 - **Search Contacts**: Quickly find a contact by name or other details.
 
-## Installation
+## Installation and Usage
 
 1. Clone the repository:
 
@@ -22,25 +22,12 @@
     ```bash
     cd MyContacts
 
-3. (Optional) Create and activate a virtual environment:
+3. Run the application:
 
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   python3 mycontacts.py
 
-4. Install the required dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-
-## Usage
-
-1. Run the application:
-
-   ```bash
-   python mycontacts.py
-
-2. Follow the on-screen instructions to add, view, edit, delete, and search contacts.
+4. Follow the on-screen instructions to add, view, edit, delete, and search contacts.
 
 ## License
 
