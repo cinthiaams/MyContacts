@@ -1,8 +1,9 @@
 '''MyContacts is a simple contact management application'''
 
+import tkinter as tk
+from tkinter import messagebox
 import json
 import os
-import time
 
 CONTACTS_FILE = 'contacts.json'
 
@@ -18,94 +19,63 @@ def save_contacts(contacts):
     with open(CONTACTS_FILE, 'w', encoding='utf-8') as file:
         json.dump(contacts, file, indent=4)
 
-def add_contact(contacts):
+def add_contact(contacts, name_entry, phone_entry, email_entry, contact_list):
     '''add a new contact'''
-    name = input("Enter name: ")
-    phone = input("Enter phone number: ")
-    email = input("Enter email: ")
-    contacts[name] = {'phone': phone, 'email': email}
-    print(f'\nContact {name} added successfully!')
-
-def view_contacts(contacts):
-    '''View all contacts'''
-    if contacts:
-        for name, info in contacts.items():
-            print(f"Name: {name}, Phone: {info['phone']}, Email: {info['email']}")
-    else:
-        print("\nNo contacts available")
-
-def update_contact(contacts):
-    '''Update an existing contact'''
-    name = input("Enter the name of the contact to update: ")
-    if name in contacts:
-        phone = input("Enter new phone number: ")
-        email = input("Enter new email: ")
+    name = name_entry.get()
+    phone = phone_entry.get()
+    email = email_entry.get()
+    if name and phone and email:
         contacts[name] = {'phone': phone, 'email': email}
-        print(f'\nContact {name} update successfully!')
+        messagebox.showinfo("Sucess", f'Contact {name} added successfully')
+        save_contacts(contacts)
+        view_contacts(contacts, contact_list)
     else:
-        print(f'\nContact {name} not found.')
+        messagebox.showwarning("Input Error", "Please fill in all fields")
 
-def delete_contact(contacts):
+def view_contacts(contacts, contact_list):
+    '''View all contacts'''
+    contact_list.delete(0, tk.END)
+    for name, info in contacts.items():
+        contact_list.insert(tk.END, f"Name: {name}, Phone: {info['phone']}, Email: {info['email']}")
+
+def delete_contact(contacts, contact_list):
     '''Delete a contact'''
-    name = input("Enter the name of the contact to delete: ")
-    if name in contacts:
-        del contacts[name]
-        print(f'\nContact {name} deleted successfully!')
-    else:
-        print(f'\nContact {name} not found.')
-
-def search_contacts(contacts):
-    '''Search for contacts by name'''
-    search_name = input("Enter the name to search for: ")
-    found_contacts = {
-        name: info
-        for name, info in contacts.items()
-        if search_name.lower() in name.lower()
-    }
-    if found_contacts:
-        for name, info in found_contacts.items():
-            print(f"Name: {name}, Phone: {info['phone']}, Email: {info['email']}")
-    else:
-        print("\nNo contacts found.")
-
-def menu():
-    '''Main function to run the contact manager.'''
-    contacts = load_contacts()
-
-    print("\n+---------------------------------+")
-    print("|            Welcome to           |")
-    print("|            MY CONTACTS          |")
-    print("| Your app for contact management |")
-    print("+---------------------------------+")
-
-    while True:
-        time.sleep(1)  # Add a 1-second delay before showing the menu
-        print("\nContact Manager")
-        print("1. Add Contact")
-        print("2. View Contacts")
-        print("3. Update Contact")
-        print("4. Delete Contact")
-        print("5. Search Contacts")
-        print("6. Exit")
-
-        choice = input("Enter the number of your chosen option: ")
-
-        if choice == '1':
-            add_contact(contacts)
-        elif choice == '2':
-            view_contacts(contacts)
-        elif choice == '3':
-            update_contact(contacts)
-        elif choice == '4':
-            delete_contact(contacts)
-        elif choice == '5':
-            search_contacts(contacts)
-        elif choice == '6':
+    selected_contact = contact_list.get(tk.ACTIVE) 
+    if selected_contact:
+        name = selected_contact.split(',')[0].split(':')[1].strip()
+        if name in contacts:
+            del contacts[name]
+            messagebox.showinfo("Sucess", f'Contact {name} deleted successfully!')
             save_contacts(contacts)
-            print("Goodbye!")
-            break
+            view_contacts(contacts, contact_list)
         else:
-            print("Invalid choice. Please try again.")
+            messagebox.showwarning("Not Found", f'Contact {name} not found.')
+    else:
+        messagebox.showwarning("Selection Error", "Please selec a contact to delete")
 
-if __name__ == "__main__":
-    menu()
+contacts = load_contacts()
+
+root = tk.Tk()
+root.title("MyContacts")
+
+tk.Label(root, text="Name").grid(row=0, column=0)
+name_entry = tk.Entry(root)
+name_entry.grid(row=0, column=1)
+
+tk.Label(root, text="Phone:").grid(row=1, column=0)
+phone_entry = tk.Entry(root)
+phone_entry.grid(row=1, column=1)
+
+tk.Label(root, text="Email:").grid(row=2, column=0)
+email_entry = tk.Entry(root)
+email_entry.grid(row=2, column=1)
+
+tk.Button(root, text="Add Contact", command=lambda: add_contact(contacts, name_entry, phone_entry, email_entry, contact_list)).grid(row=3, column=0, columnspan=2)
+tk.Button(root, text="Delete Contact", command=lambda: delete_contact(contacts, contact_list)).grid(row=4, column=0, columnspan=2)
+
+contact_list = tk.Listbox(root, width=50)
+contact_list.grid(row=5, column=0, columnspan=2)
+
+view_contacts(contacts, contact_list)
+
+root.mainloop()
